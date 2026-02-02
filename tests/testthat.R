@@ -1,4 +1,4 @@
 library(testthat)
-library(myutils)
+library(myproject)
 
-test_check("myutils")
+test_check("myproject")
