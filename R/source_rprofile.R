@@ -3,7 +3,9 @@
 #' Starting from `start`, this function searches for a `.Rprofile` file in the
 #' current directory and then each parent directory until `stop_at` (inclusive)
 #' or the filesystem root is reached. The first `.Rprofile` found is sourced and
-#' the search stops immediately.
+#' the search stops immediately. The file is sourced with `chdir = TRUE`, so
+#' relative file paths in `.Rprofile` are resolved from the `.Rprofile` folder.
+#' Objects created by `.Rprofile` are assigned into the caller environment.
 #'
 #' @param start Character scalar. Directory where the search begins.
 #'   Defaults to [base::getwd()].
@@ -11,7 +13,8 @@
 #'   Defaults to `"/"`.
 #'
 #' @return Invisibly returns the path to the sourced `.Rprofile` file, or
-#'   `NULL` if no `.Rprofile` is found.
+#'   `NULL` if no `.Rprofile` is found. Side effects from `.Rprofile` are
+#'   applied in the caller environment.
 #' @export 
 source_rprofile <- function(start = getwd(), stop_at = "/") {
     start <- normalizePath(start, winslash = "/", mustWork = TRUE)
@@ -22,7 +25,7 @@ source_rprofile <- function(start = getwd(), stop_at = "/") {
         rprofile_path <- file.path(current, ".Rprofile")
         if (file.exists(rprofile_path)) {
         message("Sourcing .Rprofile: ", rprofile_path)
-        source(rprofile_path, local = TRUE)
+        source(rprofile_path, local = parent.frame(), chdir = TRUE)
         return(invisible(rprofile_path))  # stop after first
         }
         

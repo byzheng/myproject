@@ -15,9 +15,12 @@ test_that("source_rprofile sources the first .Rprofile found and stops", {
     writeLines(sprintf("write('child', file = '%s', append = TRUE)", marker), child_profile)
     writeLines(sprintf("write('root', file = '%s', append = TRUE)", marker), root_profile)
 
-    result <- myproject:::source_rprofile(start = deep_dir, stop_at = temp_dir)
+    result <- source_rprofile(start = deep_dir, stop_at = temp_dir)
 
-    expect_equal(result, child_profile)
+    expect_equal(
+        normalizePath(result, winslash = "/", mustWork = TRUE),
+        normalizePath(child_profile, winslash = "/", mustWork = TRUE)
+    )
     expect_true(file.exists(marker))
     expect_equal(readLines(marker), "child")
 })
@@ -33,7 +36,7 @@ test_that("source_rprofile does not search above stop_at", {
 
     writeLines("write('root', file = tempfile())", file.path(temp_dir, ".Rprofile"))
 
-    result <- myproject:::source_rprofile(start = deep_dir, stop_at = stop_dir)
+    result <- source_rprofile(start = deep_dir, stop_at = stop_dir)
 
     expect_null(result)
 })
@@ -46,7 +49,7 @@ test_that("source_rprofile returns NULL when no .Rprofile is found", {
     deep_dir <- file.path(temp_dir, "x", "y")
     dir.create(deep_dir, recursive = TRUE)
 
-    result <- myproject:::source_rprofile(start = deep_dir, stop_at = temp_dir)
+    result <- source_rprofile(start = deep_dir, stop_at = temp_dir)
 
     expect_null(result)
 })
