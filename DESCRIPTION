@@ -13,10 +13,9 @@ URL: https://myproject.bangyou.me/,
 BugReports: https://github.com/byzheng/myproject/issues
 Encoding: UTF-8
 Imports:
-    workspace,
     here
-Remotes:
-    byzheng/workspace
+Depends:
+    R (>= 4.1.0)
 RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0),
