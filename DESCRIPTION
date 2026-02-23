@@ -13,6 +13,7 @@ URL: https://myproject.bangyou.me/,
 BugReports: https://github.com/byzheng/myproject/issues
 Encoding: UTF-8
 Imports:
+    workspace,
     here
 RoxygenNote: 7.3.3
 Suggests: 
