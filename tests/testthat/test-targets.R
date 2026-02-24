@@ -21,6 +21,68 @@ test_that("get_targets loads and combines targets objects", {
     expect_true(all(vapply(result, inherits, logical(1), what = "tar_target")))
 })
 
+test_that("get_targets handles bare single tar_target calls", {
+    skip_if_not_installed("targets")
+
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    on.exit(unlink(temp_dir, recursive = TRUE))
+
+    script_dir <- file.path(temp_dir, "script")
+    dir.create(script_dir, recursive = TRUE)
+
+    writeLines("targets::tar_target(alpha, 1)", file.path(script_dir, "_targets_bare_item.R"))
+
+    result <- get_targets(path = script_dir)
+
+    expect_type(result, "list")
+    expect_length(result, 1)
+    expect_true(all(vapply(result, inherits, logical(1), what = "tar_target")))
+})
+
+test_that("get_targets handles bare list of tar_targets calls", {
+    skip_if_not_installed("targets")
+
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    on.exit(unlink(temp_dir, recursive = TRUE))
+
+    script_dir <- file.path(temp_dir, "script")
+    dir.create(script_dir, recursive = TRUE)
+
+    writeLines("list(targets::tar_target(beta, 1))", file.path(script_dir, "_targets_bare_list.R"))
+
+    result <- get_targets(path = script_dir)
+
+    expect_type(result, "list")
+    expect_length(result, 1)
+    expect_true(all(vapply(result, inherits, logical(1), what = "tar_target")))
+})
+
+test_that("get_targets combines bare single and bare list tar_targets", {
+    skip_if_not_installed("targets")
+
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    on.exit(unlink(temp_dir, recursive = TRUE))
+
+    script_dir <- file.path(temp_dir, "script")
+    dir.create(script_dir, recursive = TRUE)
+
+    writeLines("targets::tar_target(alpha, 1)", file.path(script_dir, "_targets_bare_item.R"))
+    writeLines("list(targets::tar_target(beta, 1))", file.path(script_dir, "_targets_bare_list.R"))
+
+    result <- get_targets(path = script_dir)
+
+    expect_type(result, "list")
+    expect_length(result, 2)
+    expect_true(all(vapply(result, inherits, logical(1), what = "tar_target")))
+})
+
+
+
+
+
 test_that("get_targets respects file pattern", {
     skip_if_not_installed("targets")
 

@@ -18,7 +18,8 @@ script file names. Defaults to `"^_targets_.*\\.R$"`.}
 }
 \value{
 A combined object created from all objects whose names match
-  `"^targets_"` after sourcing matched files.
+  `"^targets_"` after sourcing matched files, plus any tar_target objects
+  created as the final expression in sourced files (even if not assigned).
 }
 \description{
 Recursively finds and sources target definition scripts, then collects all
@@ -31,6 +32,9 @@ All matched `targets_*` objects must be either:
   \item A single object inheriting from class `"tar_target"`, OR
   \item A list where all elements inherit from class `"tar_target"`
 }
+Alternatively, a file can contain a bare tar_target call (e.g., 
+`targets::tar_target(alpha, 1)`) as its final expression, which will be
+captured and named after its internal target name.
 The function validates this after each sourced file and errors with file
 context if any matched object does not meet these criteria. It also errors on
 duplicate internal target names. If sourcing a matched file fails, the

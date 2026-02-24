@@ -10,13 +10,17 @@
 #'   script file names. Defaults to `"^_targets_.*\\.R$"`.
 #'
 #' @return A combined object created from all objects whose names match
-#'   `"^targets_"` after sourcing matched files.
+#'   `"^targets_"` after sourcing matched files, plus any tar_target objects
+#'   created as the final expression in sourced files (even if not assigned).
 #' @details
 #' All matched `targets_*` objects must be either:
 #' \itemize{
 #'   \item A single object inheriting from class `"tar_target"`, OR
 #'   \item A list where all elements inherit from class `"tar_target"`
 #' }
+#' Alternatively, a file can contain a bare tar_target call (e.g., 
+#' `targets::tar_target(alpha, 1)`) as its final expression, which will be
+#' captured and named after its internal target name.
 #' The function validates this after each sourced file and errors with file
 #' context if any matched object does not meet these criteria. It also errors on
 #' duplicate internal target names. If sourcing a matched file fails, the
@@ -61,31 +65,48 @@ get_targets <- function(
     }
     for (target_file in target_files) {
         file_env <- new.env(parent = target_env)
-        source_error <- tryCatch(
+        source_result <- tryCatch(
             {
                 source(target_file, local = file_env)
-                NULL
             },
             error = function(error_condition) {
                 error_condition
             }
         )
 
-        if (!is.null(source_error)) {
+        if (inherits(source_result, "error")) {
             stop(
                 sprintf(
                     "Failed to source target file %s: %s",
                     target_file,
-                    conditionMessage(source_error)
+                    conditionMessage(source_result)
                 ),
                 call. = FALSE
             )
         }
 
+        # Capture the last evaluated expression from source()
+        # source() returns a list with "value" element containing the last expression
+        last_value <- source_result$value
+        
         file_object_names <- ls(envir = file_env)
         file_target_names <- sort(ls(envir = file_env, pattern = "^targets_"))
 
+        # Check if last expression is a bare tar_target or list of tar_targets
+        # Only treat as bare if there are NO assigned targets_* variables
+        bare_tar_target <- NULL
         if (length(file_target_names) == 0) {
+            is_bare_single <- inherits(last_value, "tar_target")
+            is_bare_list <- is.list(last_value) && length(last_value) > 0 && 
+                            all(vapply(last_value, inherits, logical(1), what = "tar_target"))
+            
+            if ((is_bare_single || is_bare_list)) {
+                # This is a bare tar_target/list returned from source (not from an assignment)
+                bare_tar_target <- last_value
+            }
+        }
+
+        if (length(file_target_names) == 0 && is.null(bare_tar_target)) {
             list2env(mget(file_object_names, envir = file_env, inherits = FALSE), envir = target_env)
             next
         }
@@ -97,6 +118,22 @@ get_targets <- function(
             envir = file_env,
             inherits = FALSE
         )
+        
+        # Add bare tar_target if found
+        if (!is.null(bare_tar_target)) {
+            if (inherits(bare_tar_target, "tar_target")) {
+                # Name it after its internal target name, prefixed with "targets_"
+                obj_name <- paste0("targets_", bare_tar_target$name)
+            } else if (is.list(bare_tar_target)) {
+                # Use a generated name combining all internal target names
+                obj_name <- paste0("targets_", paste(
+                    vapply(bare_tar_target, function(x) x$name, character(1)),
+                    collapse = "_"
+                ))
+            }
+            file_target_objects[[obj_name]] <- bare_tar_target
+            file_target_names <- c(file_target_names, obj_name)
+        }
         
         # Validate: each object must be a tar_target OR a list of tar_targets
         for (obj_name in names(file_target_objects)) {
@@ -190,7 +227,14 @@ get_targets <- function(
             )
         }
 
-        list2env(mget(file_object_names, envir = file_env, inherits = FALSE), envir = target_env)
+        list2env(file_target_objects, envir = target_env)
+        
+        # Also copy any other non-targets_ objects from the file to maintain state
+        # (for cases where one targets_* object references another variable)
+        other_object_names <- setdiff(file_object_names, file_target_names)
+        if (length(other_object_names) > 0) {
+            list2env(mget(other_object_names, envir = file_env, inherits = FALSE), envir = target_env)
+        }
     }
 
     target_object_names <- sort(ls(envir = target_env, pattern = "^targets_"))
