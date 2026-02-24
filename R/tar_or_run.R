@@ -27,7 +27,6 @@
 #' }
 tar_or_run <- function(target, expr, quiet = FALSE, ...) {
     target_quo <- rlang::enquo(target)
-
     if (rlang::quo_is_missing(target_quo)) {
         stop("`target` must be provided")
     }
@@ -36,8 +35,16 @@ tar_or_run <- function(target, expr, quiet = FALSE, ...) {
         stop("`target` must be an unquoted name (not a string)")
     }
 
+    target_name <- rlang::as_name(target_quo)
+    dots <- rlang::list2(...)
+    read_call <- rlang::call2(
+        targets::tar_read,
+        rlang::sym(target_name),
+        !!!dots
+    )
+
     tryCatch(
-        targets::tar_read(!!target_quo, ...),
+        rlang::eval_bare(read_call),
         error = function(e) {
             if (!quiet) {
                 message("Target read failed: ", conditionMessage(e))

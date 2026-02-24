@@ -50,3 +50,39 @@ test_that("tar_or_run suppresses messages with quiet = TRUE", {
         tar_or_run(nonexistent_target, 1, quiet = TRUE)
     )
 })
+
+
+
+test_that("tar_or_run reads target correctly", {
+    skip_if_not_installed("targets")
+
+    # Create a temporary directory for targets project
+    temp_dir <- tempdir()
+    old_wd <- getwd()
+    setwd(temp_dir)
+    on.exit(setwd(old_wd))
+
+    # Create a simple _targets.R file
+    targets_script <- "
+    list(
+        targets::tar_target(test_target_1, 123),
+        targets::tar_target(test_target_2, data.frame(a = 1:3, b = 4:6))
+    )
+    "
+    writeLines(targets_script, "_targets.R")
+
+    # Build the targets
+    targets::tar_make()
+
+    # Test that tar_or_run reads the target correctly
+    expect_no_message(
+        result <- tar_or_run(test_target_1)
+    )
+    expect_equal(result, 123)
+    expect_no_message(
+        result_df <- tar_or_run(test_target_2)
+    )
+    expect_equal(result_df, data.frame(a = 1:3, b = 4:6))
+})
+
+
