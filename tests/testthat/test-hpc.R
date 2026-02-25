@@ -1,37 +1,45 @@
 test_that("create_hpc_sentinel creates valid sentinel file", {
     skip_if_not_installed("jsonlite")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
-    input2 <- tempfile(tmpdir = temp_dir, fileext = ".csv")
+    # Create a test project structure in temp directory
+    test_proj <- tempfile("hpc_test_")
+    dir.create(test_proj)
     
-    # Create mock input files
-    saveRDS(mtcars, input1)
-    write.csv(iris, input2, row.names = FALSE)
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    # Initialize here anchor at project root
+    writeLines("", ".here")
+    
+    # Create input files
+    dir.create("data", showWarnings = FALSE)
+    saveRDS(mtcars, "data/input1.rds")
+    saveRDS(iris, "data/input2.rds")
     
     # Create sentinel
     result <- create_hpc_sentinel(
-        sentinel_path = sentinel_path,
-        input_files = c(input1, input2),
+        sentinel_path = ".hpc/sentinel.json",
+        input_files = c("data/input1.rds", "data/input2.rds"),
         metadata = list(job_id = "12345", nodes = 4)
     )
     
-    expect_identical(result, sentinel_path)
-    expect_true(file.exists(sentinel_path))
+    expect_equal(result, ".hpc/sentinel.json")
+    expect_true(file.exists(".hpc/sentinel.json"))
     
     # Read and validate contents
-    sentinel_data <- jsonlite::read_json(sentinel_path)
+    sentinel_data <- jsonlite::read_json(".hpc/sentinel.json")
     expect_true("completed_at" %in% names(sentinel_data))
     expect_true("input_files" %in% names(sentinel_data))
     expect_true("metadata" %in% names(sentinel_data))
     expect_equal(length(sentinel_data$input_files), 2)
     expect_equal(sentinel_data$metadata$job_id, "12345")
     expect_equal(sentinel_data$metadata$nodes, 4)
-    
-    # Clean up
-    unlink(sentinel_path)
-    unlink(c(input1, input2))
+    # Verify relative paths are stored, not absolute
+    expect_true("data/input1.rds" %in% names(sentinel_data$input_files))
 })
 
 test_that("create_hpc_sentinel validates input_files", {
