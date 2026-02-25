@@ -16,7 +16,7 @@ List with completion time, input files, and custom metadata
 Get Sentinel Metadata
 }
 \examples{
-\donttest{
+\dontrun{
 meta <- get_hpc_sentinel_metadata("output/.hpc_complete")
 cat("HPC completed at:", meta$completed_at, "\n")
 }

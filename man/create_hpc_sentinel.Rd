@@ -23,7 +23,7 @@ Creates a JSON sentinel file that records:
 - Optional custom metadata
 }
 \examples{
-\donttest{
+\dontrun{
 create_hpc_sentinel(
   sentinel_path = "output/.hpc_complete",
   input_files = c("output/data_cleaned.rds", "output/params.rds"),

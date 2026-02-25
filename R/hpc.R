@@ -11,7 +11,7 @@
 #' - Optional custom metadata
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' create_hpc_sentinel(
 #'   sentinel_path = "output/.hpc_complete",
 #'   input_files = c("output/data_cleaned.rds", "output/params.rds"),
@@ -69,7 +69,7 @@ create_hpc_sentinel <- function(sentinel_path, input_files, metadata = list()) {
 #' If validation fails, provides clear error message and optionally deletes stale sentinel.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # In targets file:
 #' targets::tar_target(
 #'   file_hpc_complete,
@@ -194,7 +194,7 @@ check_hpc_sentinel <- function(sentinel_path,
 #' @return List with completion time, input files, and custom metadata
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' meta <- get_hpc_sentinel_metadata("output/.hpc_complete")
 #' cat("HPC completed at:", meta$completed_at, "\n")
 #' }

@@ -35,7 +35,7 @@ Validates sentinel by checking:
 If validation fails, provides clear error message and optionally deletes stale sentinel.
 }
 \examples{
-\donttest{
+\dontrun{
 # In targets file:
 targets::tar_target(
   file_hpc_complete,
