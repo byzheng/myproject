@@ -15,7 +15,9 @@ Encoding: UTF-8
 Imports:
     here,
     targets,
-    rlang
+    rlang,
+    jsonlite,
+    stats
 Depends:
     R (>= 4.1.0)
 RoxygenNote: 7.3.3
