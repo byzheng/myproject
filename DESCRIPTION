@@ -17,6 +17,7 @@ Imports:
     targets,
     rlang,
     jsonlite,
+    yaml,
     stats
 Depends:
     R (>= 4.1.0)

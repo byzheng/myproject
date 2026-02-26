@@ -266,17 +266,3 @@ get_external_sentinel_metadata <- function(sentinel_path) {
 }
 
 
-
-# Helper function to convert absolute path to relative
-make_relative <- function(abs_path, root_dir) {
-    abs_path <- suppressWarnings(normalizePath(abs_path, winslash = "/"))
-    root_dir <- suppressWarnings(normalizePath(root_dir, winslash = "/"))
-    
-    if (!grepl(paste0("^", gsub("\\\\", "\\\\\\\\", root_dir)), abs_path)) {
-        return(abs_path) # Not under root, return as-is
-    }
-    
-    # Remove root prefix and leading slash
-    rel_path <- sub(paste0("^", gsub("\\\\", "\\\\\\\\", root_dir), "/?"), "", abs_path)
-    return(rel_path)
-}
