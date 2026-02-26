@@ -46,6 +46,38 @@ list_quarto_render_files <- function(quarto_yml = "_quarto.yml", root_dir = here
 }
 
 
+#' List content hashes for files targeted by `_quarto.yml` `render:` patterns
+#'
+#' Resolves `_quarto.yml` `render:` patterns to files and returns a named
+#' character vector of MD5 hashes, where names are relative file paths.
+#'
+#' @param quarto_yml Character scalar. Path to `_quarto.yml`, relative to
+#'   `root_dir` or absolute.
+#' @param root_dir Character scalar. Project root used to resolve relative
+#'   paths. Defaults to `here::here()`.
+#'
+#' @return Named character vector of MD5 hashes. Names are relative file paths.
+#' @export
+#' @examples
+#' \dontrun{
+#' list_quarto_render_hashes()
+#' }
+list_quarto_render_hashes <- function(quarto_yml = "_quarto.yml", root_dir = here::here()) {
+    stopifnot(is.character(root_dir), length(root_dir) == 1)
+
+    files <- list_quarto_render_files(quarto_yml = quarto_yml, root_dir = root_dir)
+    if (length(files) == 0) {
+        return(stats::setNames(character(0), character(0)))
+    }
+
+    root_dir <- normalizePath(root_dir, winslash = "/", mustWork = TRUE)
+    abs_files <- file.path(root_dir, files)
+    hashes <- as.character(tools::md5sum(abs_files))
+    names(hashes) <- files
+    hashes
+}
+
+
 #' Render only modified Quarto files
 #'
 #' Uses content hashes for files matched by `_quarto.yml` `render:` patterns and
@@ -82,15 +114,12 @@ render_modified_quarto <- function(
     stopifnot(is.character(cache_file), length(cache_file) == 1)
     stopifnot(is.character(quarto_bin), length(quarto_bin) == 1)
 
-    files <- list_quarto_render_files(quarto_yml = quarto_yml, root_dir = root_dir)
+    hashes <- list_quarto_render_hashes(quarto_yml = quarto_yml, root_dir = root_dir)
+    files <- names(hashes)
     if (length(files) == 0) {
         message("No files matched `_quarto.yml` render patterns.")
         return(invisible(character(0)))
     }
-
-    abs_files <- file.path(root_dir, files)
-    hashes <- as.character(tools::md5sum(abs_files))
-    names(hashes) <- files
 
     cache_path <- if (grepl("^/|^[A-Z]:", cache_file)) {
         cache_file
