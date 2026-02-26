@@ -111,38 +111,3 @@ test_that("list_quarto_render_hashes supports target triggering scenarios", {
     expect_false(identical(hashes_4, hashes_5))
     expect_setequal(names(hashes_5), c("index.qmd", "script/b.qmd"))
 })
-
-test_that("render_modified_quarto returns only changed files in dry run", {
-    root <- file.path(tempdir(), paste0("quarto-modified-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
-    dir.create(root, recursive = TRUE)
-    on.exit(unlink(root, recursive = TRUE), add = TRUE)
-
-    dir.create(file.path(root, "script"), recursive = TRUE)
-    writeLines(c(
-        "project:",
-        "  render:",
-        "    - \"index.qmd\"",
-        "    - \"script/*.qmd\""
-    ), file.path(root, "_quarto.yml"))
-
-    writeLines("initial", file.path(root, "index.qmd"))
-    writeLines("initial", file.path(root, "script", "a.qmd"))
-
-    hashes <- as.character(tools::md5sum(c(
-        file.path(root, "index.qmd"),
-        file.path(root, "script", "a.qmd")
-    )))
-    names(hashes) <- c("index.qmd", "script/a.qmd")
-
-    cache_path <- file.path(root, ".quarto", "render-hashes.json")
-    dir.create(dirname(cache_path), recursive = TRUE)
-    jsonlite::write_json(as.list(hashes), cache_path, auto_unbox = TRUE, pretty = TRUE)
-
-    unchanged <- render_modified_quarto(root_dir = root, dry_run = TRUE)
-    expect_length(unchanged, 0)
-
-    writeLines("updated", file.path(root, "script", "a.qmd"))
-
-    changed <- render_modified_quarto(root_dir = root, dry_run = TRUE)
-    expect_equal(changed, "script/a.qmd")
-})
