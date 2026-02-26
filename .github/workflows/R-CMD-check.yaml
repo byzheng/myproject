@@ -39,8 +39,8 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - name: Install Quarto CLI
-        uses: quarto-dev/quarto-actions/setup@v1
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
