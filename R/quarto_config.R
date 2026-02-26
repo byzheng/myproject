@@ -152,9 +152,31 @@ render_modified_quarto <- function(
         message("Dry run: ", length(changed), " file(s) would be rendered.")
         return(invisible(changed))
     }
-    # Render changed files using system2/quarto CLI
-    result <- tryCatch({
-        system2("quarto", c("render", changed), stdout = TRUE, stderr = TRUE)
+    
+    # Render changed files by rewriting _quarto.yml and using quarto::quarto_render
+    orig_yml <- file.path(root_dir, quarto_yml)
+    backup_yml <- paste0(orig_yml, ".bak-", as.integer(Sys.time()), "-", sample.int(1e6, 1))
+    file.copy(orig_yml, backup_yml, overwrite = TRUE)
+    on.exit({
+        file.copy(backup_yml, orig_yml, overwrite = TRUE)
+        unlink(backup_yml)
+    }, add = TRUE)
+
+    # Ensure index.qmd is last if present
+    idx <- which(changed == "index.qmd")
+    if (length(idx) > 0) {
+        changed <- c(changed[-idx], changed[idx])
+    } else {
+        if (file.exists(file.path(root_dir, "index.qmd"))) {
+            changed <- c(changed, "index.qmd")
+        }
+    }
+
+    config <- yaml::read_yaml(orig_yml)
+    config$project$render <- changed
+    yaml::write_yaml(config, orig_yml)
+    tryCatch({
+        quarto::quarto_render(profile = orig_yml)
     }, error = function(e) {
         stop("Quarto render failed: ", conditionMessage(e), call. = FALSE)
     })
