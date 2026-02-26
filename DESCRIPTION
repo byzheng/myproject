@@ -19,7 +19,8 @@ Imports:
     jsonlite,
     yaml,
     stats,
-    bracer
+    bracer,
+    quarto
 Depends:
     R (>= 4.1.0)
 RoxygenNote: 7.3.3

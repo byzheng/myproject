@@ -8,7 +8,6 @@ render_modified_quarto(
   quarto_yml = "_quarto.yml",
   root_dir = here::here(),
   cache_file = ".quarto/render-hashes.json",
-  quarto_bin = "quarto",
   dry_run = FALSE,
   force = FALSE
 )
@@ -22,8 +21,6 @@ paths. Defaults to `here::here()`.}
 
 \item{cache_file}{Character scalar. Path to JSON hash cache file, relative to
 `root_dir` or absolute.}
-
-\item{quarto_bin}{Character scalar. Quarto executable name or path.}
 
 \item{dry_run}{Logical scalar. If `TRUE`, returns files that would be
 rendered without invoking Quarto.}

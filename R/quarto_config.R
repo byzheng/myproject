@@ -89,7 +89,6 @@ list_quarto_render_hashes <- function(quarto_yml = "_quarto.yml", root_dir = her
 #'   paths. Defaults to `here::here()`.
 #' @param cache_file Character scalar. Path to JSON hash cache file, relative to
 #'   `root_dir` or absolute.
-#' @param quarto_bin Character scalar. Quarto executable name or path.
 #' @param dry_run Logical scalar. If `TRUE`, returns files that would be
 #'   rendered without invoking Quarto.
 #' @param force Logical scalar. If `TRUE`, renders all matched files.
@@ -105,14 +104,12 @@ render_modified_quarto <- function(
     quarto_yml = "_quarto.yml",
     root_dir = here::here(),
     cache_file = ".quarto/render-hashes.json",
-    quarto_bin = "quarto",
     dry_run = FALSE,
     force = FALSE
 ) {
     stopifnot(is.logical(dry_run), length(dry_run) == 1)
     stopifnot(is.logical(force), length(force) == 1)
     stopifnot(is.character(cache_file), length(cache_file) == 1)
-    stopifnot(is.character(quarto_bin), length(quarto_bin) == 1)
 
     hashes <- list_quarto_render_hashes(quarto_yml = quarto_yml, root_dir = root_dir)
     files <- names(hashes)
@@ -153,20 +150,17 @@ render_modified_quarto <- function(
         message("Dry run: ", length(changed), " file(s) would be rendered.")
         return(invisible(changed))
     }
-    changed_full_path <- file.path(root_dir, changed)
-    changed_full_path <- paste(shQuote(changed_full_path), collapse = " ")
-    cmd_out <- system2(quarto_bin, c("render", changed_full_path), stdout = TRUE, stderr = TRUE)
-    status <- attr(cmd_out, "status")
-    if (is.null(status)) {
-        status <- 0
-    }
-    if (!identical(status, 0L)) {
-        stop(
-            "Quarto render failed with status ", status, "\n",
-            paste(cmd_out, collapse = "\n"),
-            call. = FALSE
-        )
-    }
+    changed_full_path <- file.path(changed)
+    config <- yaml::read_yaml(quarto_yml)
+    config$project$render <- changed_full_path
+    tmp_yml <- "_quarto_adhsdfsljshkfekafdk.yml"
+    yaml::write_yaml(config, tmp_yml)
+    on.exit(unlink(tmp_yml), add = TRUE)
+    tryCatch({
+        quarto::quarto_render(profile = tmp_yml)
+    }, error = function(e) {
+        stop("Quarto render failed: ", conditionMessage(e), call. = FALSE)
+    })
 
     dir.create(dirname(cache_path), recursive = TRUE, showWarnings = FALSE)
     jsonlite::write_json(as.list(hashes), cache_path, auto_unbox = TRUE, pretty = TRUE)
