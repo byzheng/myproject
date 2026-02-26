@@ -203,7 +203,11 @@ render_modified_quarto <- function(
 
         config <- yaml::read_yaml(orig_yml)
         config$project$render <- changed
-        yaml::write_yaml(config, orig_yml)
+        yaml::write_yaml(
+            config,
+            orig_yml,
+            handlers = list(logical = yaml::verbatim_logical)
+        )
         tryCatch({
             quarto::quarto_render(quarto_args = c("--no-clean"))
         }, error = function(e) {
