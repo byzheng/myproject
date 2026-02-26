@@ -42,6 +42,8 @@ list_quarto_render_files <- function(quarto_yml = "_quarto.yml", root_dir = here
         all_files <- c(all_files, files_i)
     }
     all_files <- make_relative(all_files, root_dir)
+    # Exclude files starting with _ or . (Quarto ignores these)
+    all_files <- all_files[!grepl("^[_\\.]", basename(all_files))]
     sort(unique(all_files))
 }
 
