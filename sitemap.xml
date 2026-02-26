@@ -11,8 +11,11 @@
 <url><loc>https://myproject.bangyou.me/reference/get_targets.html</loc></url>
 <url><loc>https://myproject.bangyou.me/reference/index.html</loc></url>
 <url><loc>https://myproject.bangyou.me/reference/init.html</loc></url>
+<url><loc>https://myproject.bangyou.me/reference/list_quarto_render_files.html</loc></url>
+<url><loc>https://myproject.bangyou.me/reference/list_quarto_render_hashes.html</loc></url>
 <url><loc>https://myproject.bangyou.me/reference/load_functions.html</loc></url>
 <url><loc>https://myproject.bangyou.me/reference/read_data.html</loc></url>
+<url><loc>https://myproject.bangyou.me/reference/render_modified_quarto.html</loc></url>
 <url><loc>https://myproject.bangyou.me/reference/source_rprofile.html</loc></url>
 <url><loc>https://myproject.bangyou.me/reference/tar_or_run.html</loc></url>
 </urlset>
