@@ -124,8 +124,9 @@ render_modified_quarto <- function(
         message("Dry run: ", length(changed), " file(s) would be rendered.")
         return(invisible(changed))
     }
-
-    cmd_out <- system2(quarto_bin, c("render", changed), stdout = TRUE, stderr = TRUE)
+    changed_full_path <- file.path(root_dir, changed)
+    changed_full_path <- paste(shQuote(changed_full_path), collapse = " ")
+    cmd_out <- system2(quarto_bin, c("render", changed_full_path), stdout = TRUE, stderr = TRUE)
     status <- attr(cmd_out, "status")
     if (is.null(status)) {
         status <- 0
