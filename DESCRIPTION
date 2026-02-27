@@ -21,7 +21,8 @@ Imports:
     yaml,
     stats,
     bracer,
-    quarto
+    quarto,
+    fs
 Depends:
     R (>= 4.1.0)
 RoxygenNote: 7.3.3

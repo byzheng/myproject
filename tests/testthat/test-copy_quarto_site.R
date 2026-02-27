@@ -1,0 +1,36 @@
+
+test_that("copy_quarto_site copies Quarto site output", {
+    skip_if_not_installed("fs")
+    source_dir <- file.path(tempdir(), "quarto_site_src")
+    target_dir <- file.path(tempdir(), "quarto_site_dest")
+    dir.create(source_dir, recursive = TRUE, showWarnings = FALSE)
+    file.create(file.path(source_dir, "index.html"))
+    file.create(file.path(source_dir, "about.html"))
+    if (dir.exists(target_dir)) fs::dir_delete(target_dir)
+    expect_false(dir.exists(target_dir))
+    copy_quarto_site(source_dir = source_dir, target_dir = target_dir, verbose = FALSE)
+    expect_true(dir.exists(target_dir))
+    expect_true(file.exists(file.path(target_dir, "index.html")))
+    expect_true(file.exists(file.path(target_dir, "about.html")))
+    # Clean up
+    fs::dir_delete(source_dir)
+    fs::dir_delete(target_dir)
+})
+
+test_that("copy_quarto_site copies recursively", {
+    skip_if_not_installed("fs")
+    source_dir <- file.path(tempdir(), "quarto_site_src_recursive")
+    target_dir <- file.path(tempdir(), "quarto_site_dest_recursive")
+    dir.create(file.path(source_dir, "subdir"), recursive = TRUE, showWarnings = FALSE)
+    file.create(file.path(source_dir, "index.html"))
+    file.create(file.path(source_dir, "subdir", "nested.html"))
+    if (dir.exists(target_dir)) fs::dir_delete(target_dir)
+    expect_false(dir.exists(target_dir))
+    copy_quarto_site(source_dir = source_dir, target_dir = target_dir, verbose = FALSE)
+    expect_true(dir.exists(target_dir))
+    expect_true(file.exists(file.path(target_dir, "index.html")))
+    expect_true(file.exists(file.path(target_dir, "subdir", "nested.html")))
+    # Clean up
+    fs::dir_delete(source_dir)
+    fs::dir_delete(target_dir)
+})
