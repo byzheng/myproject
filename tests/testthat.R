@@ -1,4 +1,4 @@
 library(testthat)
-library(myproject)
+library(myworkspace)
 
-test_check("myproject")
+test_check("myworkspace")

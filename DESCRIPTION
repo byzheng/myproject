@@ -1,16 +1,16 @@
-Package: myproject
+Package: myworkspace
 Type: Package
-Title: My personal R package for project management
+Title: My personal R package for workspace and project management
 Version: 0.0.1
-Maintainer: Bangyou Zheng <bangyou.zheng@csiro.au>
+Maintainer: Bangyou Zheng <zheng.bangyou@gmail.com>
 Authors@R: person("Bangyou", "Zheng", 
-               email = "bangyou.zheng@csiro.au", 
+               email = "zheng.bangyou@gmail.com", 
                role = c("aut", "cre"))
-Description: My personal R package for project management.
+Description: My personal R package for workspace and project management.
 License: MIT + file LICENSE
-URL: https://myproject.bangyou.me/,
-    https://github.com/byzheng/myproject
-BugReports: https://github.com/byzheng/myproject/issues
+URL: https://myworkspace.bangyou.me/,
+    https://github.com/byzheng/myworkspace
+BugReports: https://github.com/byzheng/myworkspace/issues
 Encoding: UTF-8
 Imports:
     here,
