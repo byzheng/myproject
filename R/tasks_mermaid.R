@@ -16,12 +16,15 @@ knit_targets_mermaid <- function(...) {
     pos <- grepl("direction LR", mermaid_code)
     mermaid_code[pos] <- gsub("direction LR", "direction TB", mermaid_code[pos])
     mermaid_code <- paste(mermaid_code, collapse = "\n")
+    css <- paste0("<style>\n", read_asset_file("mermaid-zoom.css"), "\n</style>")
+    js  <- paste0("<script>\n", read_asset_file("mermaid-zoom.js"), "\n</script>")
     knitr::asis_output(
         paste0(
+            css, "\n",
+            js, "\n",
             "```{mermaid}\n",
             mermaid_code,
-            "\n```"
-        )
+            "\n```")
     )
 }
 

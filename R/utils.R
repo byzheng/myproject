@@ -34,3 +34,13 @@ make_relative <- function(target, start) {
     }
     return(rel_paths)
 }
+
+
+
+
+# Helper: Read asset file as string
+read_asset_file <- function(filename) {
+    asset_path <- system.file("assets", filename, package = "myworkspace")
+    if (asset_path == "") stop(paste("Asset not found:", filename))
+    paste(readLines(asset_path, warn = FALSE), collapse = "\n")
+}

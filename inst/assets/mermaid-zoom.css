@@ -1,0 +1,15 @@
+/* Zoomable Mermaid SVG CSS */
+.zoom-container {
+  overflow: hidden;
+  width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  position: relative;
+}
+.zoom-container svg {
+  cursor: grab;
+  transition: transform 0.2s;
+  display: block;
+  width: 100%;
+  height: auto;
+}
